@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"slices"
 	"strings"
-	"time"
 
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/cli/go-gh/v2/pkg/repository"
@@ -169,7 +167,7 @@ func (gh *PRClient) createComments(response *git.PullRequest, verbose bool) []gi
 			commentList = append(commentList, comment)
 		}
 	}
-	gh.sortCommentsInPlace(commentList)
+	git.SortCommentsInPlace(commentList)
 	reviewComments := gh.getThreadComments(response)
 	commentList = append(commentList, reviewComments...)
 
@@ -178,12 +176,6 @@ func (gh *PRClient) createComments(response *git.PullRequest, verbose bool) []gi
 		commentList = append(commentList, commitComments...)
 	}
 	return commentList
-}
-
-func (gh *PRClient) sortCommentsInPlace(commentList []git.Comment) {
-	slices.SortFunc(commentList, func(i, j git.Comment) int {
-		return time.Time.Compare(i.CreatedAt, j.CreatedAt)
-	})
 }
 
 func (gh *PRClient) createState(verbose bool, prDetails *git.PullRequest) git.State {
@@ -254,7 +246,7 @@ func (gh *PRClient) getThreadComments(graphQLData *git.PullRequest) []git.Commen
 
 			threadComments = append(threadComments, comment)
 		}
-		gh.sortCommentsInPlace(threadComments)
+		git.SortCommentsInPlace(threadComments)
 
 		comments = append(comments, threadComments...)
 	}
@@ -296,7 +288,7 @@ func (gh *PRClient) GetRepoDetails() (*git.Repo, error) {
 	}
 
 	return &git.Repo{
-		Name: repo.Name,
+		Name:  repo.Name,
 		Owner: repo.Owner,
 	}, nil
 }

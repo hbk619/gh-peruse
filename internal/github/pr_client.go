@@ -20,7 +20,7 @@ import (
 type PullRequestClient interface {
 	DetectCurrentPR(repo *git.Repo) (int, error)
 	GetPRDetails(repo *git.Repo, verbose bool) (*git.PR, error)
-	GetRepoDetails() (repository.Repository, error)
+	GetRepoDetails() (*git.Repo, error)
 	Resolve(comment *git.Comment) error
 	Reply(contents string, comment *git.Comment, prId string) error
 	GetCommentCountForOwnedPRs(repo *git.Repo) (map[int]int, error)
@@ -289,8 +289,16 @@ func (gh *PRClient) DetectCurrentPR(repo *git.Repo) (int, error) {
 	return prList.Repository.PullRequests.Nodes[0].Number, nil
 }
 
-func (gh *PRClient) GetRepoDetails() (repository.Repository, error) {
-	return repository.Current()
+func (gh *PRClient) GetRepoDetails() (*git.Repo, error) {
+	repo, err := repository.Current()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get repo details %w", err)
+	}
+
+	return &git.Repo{
+		Name: repo.Name,
+		Owner: repo.Owner,
+	}, nil
 }
 
 func (gh *PRClient) Reply(contents string, comment *git.Comment, prId string) error {

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/cli/go-gh/v2/pkg/repository"
 	"github.com/golang/mock/gomock"
 	mock_filesystem "github.com/hbk619/gh-peruse/internal/filesystem/mocks"
 	"github.com/hbk619/gh-peruse/internal/git"
@@ -42,7 +41,7 @@ func (suite *PRActionTestSuite) TestInit_no_comments() {
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: make(map[int]history.PR)}, nil)
 	prHistory := history.PR{CommentCount: 0}
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: prHistory}}).Return(nil)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -61,7 +60,7 @@ func (suite *PRActionTestSuite) TestInit_gets_pr_number() {
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: make(map[int]history.PR)}, nil)
 	prHistory := history.PR{CommentCount: 0}
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: prHistory}}).Return(nil)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -78,7 +77,7 @@ func (suite *PRActionTestSuite) TestInit_gets_pr_number() {
 }
 
 func (suite *PRActionTestSuite) TestInit_error_when_getting_pr_number() {
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -91,7 +90,7 @@ func (suite *PRActionTestSuite) TestInit_error_when_getting_pr_number() {
 }
 
 func (suite *PRActionTestSuite) TestInit_invalid_pr_number() {
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -104,7 +103,7 @@ func (suite *PRActionTestSuite) TestInit_invalid_pr_number() {
 func (suite *PRActionTestSuite) TestInit_new_comments_never_viewed_pr() {
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: map[int]history.PR{}}, nil)
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: {CommentCount: 2}}}).Return(nil)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -125,7 +124,7 @@ func (suite *PRActionTestSuite) TestInit_new_comments_never_viewed_pr() {
 func (suite *PRActionTestSuite) TestInit_new_comments_since_last_view() {
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: map[int]history.PR{2: {CommentCount: 1}}}, nil)
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: {CommentCount: 2}}}).Return(nil)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -146,7 +145,7 @@ func (suite *PRActionTestSuite) TestInit_new_comments_since_last_view() {
 func (suite *PRActionTestSuite) TestInit_verbose_prints_state() {
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: map[int]history.PR{}}, nil)
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: {CommentCount: 2}}}).Return(nil)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -184,7 +183,7 @@ func (suite *PRActionTestSuite) TestInit_verbose_prints_state() {
 func (suite *PRActionTestSuite) TestInit_no_new_comments_since_last_view() {
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: map[int]history.PR{2: {CommentCount: 2}}}, nil)
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: {CommentCount: 2}}}).Return(nil)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -203,14 +202,14 @@ func (suite *PRActionTestSuite) TestInit_no_new_comments_since_last_view() {
 
 func (suite *PRActionTestSuite) TestInit_err_getting_repo() {
 	expectedErr := errors.New("failed to get repo")
-	suite.mockPrClient.EXPECT().GetRepoDetails().Return(repository.Repository{}, expectedErr)
+	suite.mockPrClient.EXPECT().GetRepoDetails().Return(&git.Repo{}, expectedErr)
 
 	err := suite.prAction.Init([]string{"2"}, false)
 	suite.ErrorIs(err, expectedErr)
 }
 
 func (suite *PRActionTestSuite) TestInit_err_getting_comments() {
-	githubRepo := repository.Repository{
+	githubRepo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -230,7 +229,7 @@ func (suite *PRActionTestSuite) TestInit_err_getting_comments() {
 func (suite *PRActionTestSuite) TestInit_err_loading_history() {
 	expectedErr := errors.New("no permission to read file")
 	suite.mockHistory.EXPECT().Load().Return(history.History{}, expectedErr)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}
@@ -253,7 +252,7 @@ func (suite *PRActionTestSuite) TestInit_err_saving_history() {
 	prHistory := history.PR{CommentCount: 2}
 	suite.mockHistory.EXPECT().Load().Return(history.History{Prs: map[int]history.PR{2: {CommentCount: 1}}}, nil)
 	suite.mockHistory.EXPECT().Save(history.History{Prs: map[int]history.PR{2: prHistory}}).Return(expectedErr)
-	repo := repository.Repository{
+	repo := &git.Repo{
 		Owner: "Bowser",
 		Name:  "castle",
 	}

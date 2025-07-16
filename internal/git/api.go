@@ -27,6 +27,7 @@ type (
 	Repo struct {
 		Owner    string
 		Name     string
+		Host     string
 		PRNumber int
 	}
 
@@ -145,3 +146,5 @@ type (
 		Search GithubSearch
 	}
 )
+
+const MainThread = "main thread"

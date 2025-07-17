@@ -8,8 +8,8 @@ import (
 
 var PeruseCmd = &cobra.Command{
 	Use:   "peruse",
-	Short: "Look at things in Github",
-	Long:  "Look at things in Github, one by one",
+	Short: "Look at things in Github or Gitlab",
+	Long:  "Look at things in Github or Gitlab, one by one",
 	Run: func(cmd *cobra.Command, args []string) {
 
 	},

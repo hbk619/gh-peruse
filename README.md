@@ -50,6 +50,22 @@ If you are using an enterprise server use `GH_ENTERPRISE_TOKEN` or `GITHUB_ENTER
 ### Changing the host
 If the host cannot be inferred from the context of a repo (shouldn't happen often), set an environment variable called `GH_HOST`
 
+## Gitlab
+If you're using Gitlab, you will need a [personal access token](#gitlab-personal-access-token) and [environment variable](#set-environment-variables), then [install for use with git](#install-the-binary-for-use-with-git)
+
+### Gitlab Personal Access Token
+
+Create a [personal access token](https://gitlab.com/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc) with scopes `api`
+
+### Set environment Variables
+You need two variables:
+- GITLAB_TOKEN - your gitlab personal access token
+- PERUSE_TYPE - to force Peruse to use Gitlab APIs
+
+How to set varies per operating system and between versions of operating systems, sorry!
+
+Linux/Mac can be set temporarily with `export GITLAB_TOKEN=<my-token-here>`
+
 ### Install the binary for use with Git
 
 #### MacOS and Linux

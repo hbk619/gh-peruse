@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
-	"time"
 	stdtime "time"
 
 	githubql "github.com/cli/shurcooL-graphql"
 	"github.com/golang/mock/gomock"
+	"github.com/hbk619/gh-peruse/internal"
 	"github.com/hbk619/gh-peruse/internal/git"
 	"github.com/hbk619/gh-peruse/internal/github/graphql"
 	mock_github "github.com/hbk619/gh-peruse/internal/github/mocks"
@@ -225,7 +225,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Mario",
 			},
 			Body:      "My wonderful work",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-20T22:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-20T22:38:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -236,7 +236,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Bowser",
 			},
 			Body:      "Rraaawwww",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-22T21:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-22T21:38:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -246,7 +246,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Peach",
 			},
 			Body:      "Great start",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-22T21:58:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-22T21:58:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -258,7 +258,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Yoshi",
 			},
 			Body:      "Yum!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-22T22:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-22T22:38:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -268,7 +268,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Peach",
 			},
 			Body:      "Gone down hill!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-23T22:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-23T22:38:47Z"),
 			State:     "APPROVED",
 			File: git.File{
 				FullPath: MainThread,
@@ -279,7 +279,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Bowser",
 			},
 			Body:      "Keep it up!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-23T22:48:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-23T22:48:47Z"),
 			State:     "COMMENTED",
 			File: git.File{
 				FullPath: MainThread,
@@ -290,7 +290,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Bowser",
 			},
 			Body:      "Wonderful!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-24T22:48:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-24T22:48:47Z"),
 			State:     "COMMENTED",
 			File: git.File{
 				FullPath: MainThread,
@@ -301,7 +301,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_with_verbose() {
 				Login: "Mario",
 			},
 			Body:      "This is a commit comment",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2024-07-23T09:30:30Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2024-07-23T09:30:30Z"),
 			File: git.File{
 				FullPath: "b45facb711478f4eae1f9c83fb6cfeaea24fr224",
 				FileName: "commit hash b45facb711478f4eae1f9c83fb6cfeaea24fr224",
@@ -490,7 +490,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "Bowser",
 			},
 			Body:      "Rraaawwww",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-22T21:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-22T21:38:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -500,7 +500,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "Peach",
 			},
 			Body:      "Great start",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-22T21:58:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-22T21:58:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -512,7 +512,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "Yoshi",
 			},
 			Body:      "Yum!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-22T22:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-22T22:38:47Z"),
 			File: git.File{
 				FullPath: MainThread,
 				FileName: MainThread,
@@ -522,7 +522,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "Peach",
 			},
 			Body:      "Gone down hill!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2025-02-23T22:38:47Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2025-02-23T22:38:47Z"),
 			State:     "COMMENTED",
 			File: git.File{
 				FullPath: MainThread,
@@ -534,7 +534,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "wario",
 			},
 			Body:      "Looking good!",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2024-07-31T09:34:11Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2024-07-31T09:34:11Z"),
 			File: git.File{
 				FullPath:     ".github/workflows/ci.yaml:2",
 				Path:         ".github/workflows/",
@@ -554,7 +554,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "wario",
 			},
 			Body:      "this is a line comment not in a review",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2024-07-31T10:15:10Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2024-07-31T10:15:10Z"),
 			File: git.File{
 				FullPath:     ".github/workflows/ci.yaml:6",
 				Path:         ".github/workflows/",
@@ -574,7 +574,7 @@ func (suite *PRServiceTestSuite) TestPRService_getPrDetails_comments_with_thread
 				Login: "mario",
 			},
 			Body:      "this is a reply",
-			CreatedAt: timeMustParse(stdtime.RFC3339, "2024-07-31T11:15:10Z"),
+			CreatedAt: internal.TimeMustParse(stdtime.RFC3339, "2024-07-31T11:15:10Z"),
 			File: git.File{
 				FullPath:     ".github/workflows/ci.yaml:6",
 				Path:         ".github/workflows/",
@@ -979,12 +979,4 @@ func (suite *PRServiceTestSuite) TestGetCommentCountForOwnedPRs_returns_error() 
 
 func TestPRServiceSuite(t *testing.T) {
 	suite.Run(t, new(PRServiceTestSuite))
-}
-
-func timeMustParse(layout string, str string) time.Time {
-	parse, err := time.Parse(layout, str)
-	if err != nil {
-		panic(err)
-	}
-	return parse
 }

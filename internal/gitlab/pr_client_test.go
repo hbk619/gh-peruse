@@ -767,6 +767,132 @@ func (suite *GitlabClientTestSuite) TestResolve_errors() {
 	assert.ErrorContains(suite.T(), err, "second error")
 }
 
+func (suite *GitlabClientTestSuite) TestDetectCurrentPR_has_error_getting_branch() {
+	expected := errors.New("error")
+
+	suite.mockCommandLine.EXPECT().
+		Run("git", []string{"symbolic-ref", "--quiet", "--short", "HEAD"}).
+		Return("", expected)
+	prNumber, err := suite.prService.DetectCurrentPR(&git.Repo{
+		Owner: "mario",
+		Name:  "kart",
+	})
+	suite.ErrorIs(err, expected)
+	suite.Equal(0, prNumber)
+}
+
+func (suite *GitlabClientTestSuite) TestDetectCurrentPR_has_error_getting_pr() {
+	expected := errors.New("error")
+
+	suite.mockCommandLine.EXPECT().
+		Run("git", []string{"symbolic-ref", "--quiet", "--short", "HEAD"}).
+		Return("me-branch", nil)
+
+	suite.mockGraphQL.EXPECT().
+		Do(graphql.GitlabPRForBranch("me-branch", suite.repo), gomock.Any()).
+		Return(&gitlab.Response{}, expected)
+
+	prNumber, err := suite.prService.DetectCurrentPR(suite.repo)
+	suite.ErrorIs(err, expected)
+	suite.Equal(0, prNumber)
+}
+
+func (suite *GitlabClientTestSuite) TestDetectCurrentPR_one_found() {
+	suite.mockCommandLine.EXPECT().
+		Run("git", []string{"symbolic-ref", "--quiet", "--short", "HEAD"}).
+		Return("me-branch", nil)
+
+	suite.mockGraphQL.EXPECT().
+		Do(graphql.GitlabPRForBranch("me-branch", suite.repo), gomock.Any()).
+		DoAndReturn(func(query gitlab.GraphQLQuery, gr any, _ ...any) (gitlab.Response, error) {
+			response := `{
+        "data": {
+          "project": {
+            "mergeRequests": {
+              "nodes": [
+                {
+                  "id": "gid://gitlab/MergeRequest/23213dd",
+                  "iid": "10"
+                }
+              ]
+            }
+          }
+        }
+      }`
+			err := json.Unmarshal([]byte(response), &gr)
+			suite.NoError(err)
+			return gitlab.Response{}, nil
+		})
+
+	prNumber, err := suite.prService.DetectCurrentPR(suite.repo)
+	suite.NoError(err)
+	suite.Equal(10, prNumber)
+}
+
+func (suite *GitlabClientTestSuite) TestDetectCurrentPR_errors_for_more_than_one_found() {
+	suite.mockCommandLine.EXPECT().
+		Run("git", []string{"symbolic-ref", "--quiet", "--short", "HEAD"}).
+		Return("me-branch", nil)
+
+	suite.mockGraphQL.EXPECT().
+		Do(graphql.GitlabPRForBranch("me-branch", suite.repo), gomock.Any()).
+		DoAndReturn(func(query gitlab.GraphQLQuery, gr any, _ ...any) (gitlab.Response, error) {
+			response := `{
+        "data": {
+          "project": {
+            "mergeRequests": {
+              "nodes": [
+                {
+                  "id": "gid://gitlab/MergeRequest/23213dd",
+                  "iid": "10"
+                },
+                {
+                  "id": "gid://gitlab/MergeRequest/sdfsf",
+                  "iid": "11"
+                }
+              ]
+            }
+          }
+        }
+      }`
+			err := json.Unmarshal([]byte(response), &gr)
+			suite.NoError(err)
+			return gitlab.Response{}, nil
+		})
+
+	prNumber, err := suite.prService.DetectCurrentPR(suite.repo)
+	suite.ErrorContains(err, "too many merge requests found for me-branch")
+	suite.Equal(0, prNumber)
+}
+
+func (suite *GitlabClientTestSuite) TestDetectCurrentPR_errors_for_none_found() {
+	suite.mockCommandLine.EXPECT().
+		Run("git", []string{"symbolic-ref", "--quiet", "--short", "HEAD"}).
+		Return("me-branch", nil)
+
+	suite.mockGraphQL.EXPECT().
+		Do(graphql.GitlabPRForBranch("me-branch", suite.repo), gomock.Any()).
+		DoAndReturn(func(query gitlab.GraphQLQuery, gr any, _ ...any) (gitlab.Response, error) {
+			response := `{
+        "data": {
+          "project": {
+            "mergeRequests": {
+              "nodes": [
+              ]
+            }
+          }
+        }
+      }`
+			err := json.Unmarshal([]byte(response), &gr)
+			suite.NoError(err)
+			return gitlab.Response{}, nil
+		})
+
+	prNumber, err := suite.prService.DetectCurrentPR(suite.repo)
+	suite.ErrorContains(err, "no merge request found for me-branch")
+	suite.Equal(0, prNumber)
+}
+
 func TestGitlabClientTestSuite(t *testing.T) {
 	suite.Run(t, new(GitlabClientTestSuite))
 }

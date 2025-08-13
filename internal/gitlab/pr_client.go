@@ -170,23 +170,28 @@ func (gh *PRClient) getReviewStatuses(response *PR) map[string][]string {
 func (gh *PRClient) DetectCurrentPR(repo *git.Repo) (int, error) {
 	ref, err := gh.runner.Run("git", []string{"symbolic-ref", "--quiet", "--short", "HEAD"})
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 	res := &GitlabResponse{}
 	_, err = gh.apiClient.Do(graphql.GitlabPRForBranch(ref, repo), res)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
-	if len(res.Data.Project.MergeRequests.Nodes) > 0 {
-		number, err := strconv.Atoi(res.Data.Project.MergeRequests.Nodes[0].Iid)
-		if err != nil {
-			return -1, err
-		}
-		return number, nil
-	} else {
-		return -1, fmt.Errorf("no merge requests found for current branch %s", ref)
+	if len(res.Data.Project.MergeRequests.Nodes) == 0 {
+		return 0, fmt.Errorf("no merge request found for %s", ref)
 	}
+
+	if len(res.Data.Project.MergeRequests.Nodes) > 1 {
+		return 0, fmt.Errorf("too many merge requests found for %s", ref)
+	}
+
+	number, err := strconv.Atoi(res.Data.Project.MergeRequests.Nodes[0].Iid)
+	if err != nil {
+		return 0, err
+	}
+	return number, nil
+
 }
 
 func (gh *PRClient) GetRepoDetails() (*git.Repo, error) {

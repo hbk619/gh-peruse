@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"slices"
 	"strings"
-	"time"
 
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/cli/go-gh/v2/pkg/repository"
@@ -20,7 +18,7 @@ import (
 type PullRequestClient interface {
 	DetectCurrentPR(repo *git.Repo) (int, error)
 	GetPRDetails(repo *git.Repo, verbose bool) (*git.PR, error)
-	GetRepoDetails() (repository.Repository, error)
+	GetRepoDetails() (*git.Repo, error)
 	Resolve(comment *git.Comment) error
 	Reply(contents string, comment *git.Comment, prId string) error
 	GetCommentCountForOwnedPRs(repo *git.Repo) (map[int]int, error)
@@ -169,7 +167,7 @@ func (gh *PRClient) createComments(response *git.PullRequest, verbose bool) []gi
 			commentList = append(commentList, comment)
 		}
 	}
-	gh.sortCommentsInPlace(commentList)
+	git.SortCommentsInPlace(commentList)
 	reviewComments := gh.getThreadComments(response)
 	commentList = append(commentList, reviewComments...)
 
@@ -178,12 +176,6 @@ func (gh *PRClient) createComments(response *git.PullRequest, verbose bool) []gi
 		commentList = append(commentList, commitComments...)
 	}
 	return commentList
-}
-
-func (gh *PRClient) sortCommentsInPlace(commentList []git.Comment) {
-	slices.SortFunc(commentList, func(i, j git.Comment) int {
-		return time.Time.Compare(i.CreatedAt, j.CreatedAt)
-	})
 }
 
 func (gh *PRClient) createState(verbose bool, prDetails *git.PullRequest) git.State {
@@ -254,7 +246,7 @@ func (gh *PRClient) getThreadComments(graphQLData *git.PullRequest) []git.Commen
 
 			threadComments = append(threadComments, comment)
 		}
-		gh.sortCommentsInPlace(threadComments)
+		git.SortCommentsInPlace(threadComments)
 
 		comments = append(comments, threadComments...)
 	}
@@ -289,8 +281,16 @@ func (gh *PRClient) DetectCurrentPR(repo *git.Repo) (int, error) {
 	return prList.Repository.PullRequests.Nodes[0].Number, nil
 }
 
-func (gh *PRClient) GetRepoDetails() (repository.Repository, error) {
-	return repository.Current()
+func (gh *PRClient) GetRepoDetails() (*git.Repo, error) {
+	repo, err := repository.Current()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get repo details %w", err)
+	}
+
+	return &git.Repo{
+		Name:  repo.Name,
+		Owner: repo.Owner,
+	}, nil
 }
 
 func (gh *PRClient) Reply(contents string, comment *git.Comment, prId string) error {

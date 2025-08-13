@@ -7,7 +7,6 @@ package mock_github
 import (
 	reflect "reflect"
 
-	repository "github.com/cli/go-gh/v2/pkg/repository"
 	gomock "github.com/golang/mock/gomock"
 	git "github.com/hbk619/gh-peruse/internal/git"
 )
@@ -81,10 +80,10 @@ func (mr *MockPullRequestClientMockRecorder) GetPRDetails(repo, verbose interfac
 }
 
 // GetRepoDetails mocks base method.
-func (m *MockPullRequestClient) GetRepoDetails() (repository.Repository, error) {
+func (m *MockPullRequestClient) GetRepoDetails() (*git.Repo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRepoDetails")
-	ret0, _ := ret[0].(repository.Repository)
+	ret0, _ := ret[0].(*git.Repo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
